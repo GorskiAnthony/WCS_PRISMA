@@ -151,3 +151,48 @@ npx prisma migrate dev --name init
 ```
 
 Ça nous a créé un dossier `migrations` avec un dossier `20230704154109_init` (le nom du fichier est généré automatiquement) qui lui contient un fichier `migration.sql`.
+
+A ce stade, nous avons donc nos models et nos migrations. Si on regarde dans notre base de données, nous avons bien notre database de créé ainsi que nos tables.
+
+## Installation de prisma client
+
+```bash
+npm install @prisma/client
+```
+
+Le client prisma va nous permettre de faire des requêtes à notre base de données.
+
+## Nos premières requêtes
+
+Pour ma part, j'ai l'habitude de créer dans mon dossier `service` un fichier `prisma.js` qui possèdera mon client prisma.
+
+```js
+// ./services/prisma.js
+
+const { PrismaClient } = require("@prisma/client");
+
+const prisma = new PrismaClient();
+
+module.exports = prisma;
+```
+
+Pouquoi le mettre ici ? Nous avons la possibilitée d'ajouter des options à notre client prisma. Par exemple, nous pouvons ajouter un `log` pour voir les requêtes qui sont faites à notre base de données.
+
+```js
+// ./services/prisma.js
+
+const { PrismaClient } = require("@prisma/client");
+
+const prisma = new PrismaClient({
+  log: ["query", "info", "warn"],
+  errorFormat: "pretty",
+});
+
+module.exports = prisma;
+```
+
+Et je souhaite que toutes mes requêtes passent par ce fichier. C'est pour ça que je le créer ici.
+
+### Création d'un campus
+
+
