@@ -195,4 +195,67 @@ Et je souhaite que toutes mes requêtes passent par ce fichier. C'est pour ça q
 
 ### Création d'un campus
 
+Nous n'allons pas faire le CRUD complet, mais 2/3 requêtes pour voir comment ça fonctionne.
 
+```js
+const prisma = require("../services/prisma");
+
+const get = async (req, res) => {
+  try {
+    // Ici, nous allons chercher tous les campus avec la méthode findMany
+    const getAll = await prisma.campus.findMany();
+    // Nous retournons le résultat
+    return res.status(200).json(getAll);
+  } catch (error) {
+    // Si nous avons une erreur, nous la retournons
+    return res.status(500).send(error.message);
+  } finally {
+    // Et nous nous déconnectons de la base de données
+    await prisma.$disconnect();
+  }
+};
+
+const getOne = async (req, res) => {
+  try {
+    // Ici, nous allons chercher un campus avec la méthode findUnique
+    const getOne = await prisma.campus.findUnique({
+      // Nous lui passons un objet avec les paramètres de la requête
+      where: {
+        id: parseInt(req.params.id, 10),
+      },
+    });
+    return res.status(200).json(getOne);
+  } catch (error) {
+    res.status(500).json(error.message);
+  } finally {
+    await prisma.$disconnect();
+  }
+};
+
+const add = async (req, res) => {
+  try {
+    // Ici, nous allons créer un campus avec la méthode create
+    const add = await prisma.campus.create({
+      // data: est un objet avec les données à ajouter
+      data: {
+        name: req.body.name,
+      },
+    });
+    return res.status(201).json(add);
+  } catch (error) {
+    return res.status(500).send(error.message);
+  } finally {
+    await prisma.$disconnect();
+  }
+};
+
+module.exports = {
+  get,
+  getOne,
+  add,
+};
+```
+
+### Création d'un language
+
+``

@@ -2,12 +2,10 @@ const express = require("express");
 
 const router = express.Router();
 
-const itemControllers = require("./controllers/itemControllers");
+const campusControllers = require("./controllers/campusControllers");
 
-router.get("/items", itemControllers.browse);
-router.get("/items/:id", itemControllers.read);
-router.put("/items/:id", itemControllers.edit);
-router.post("/items", itemControllers.add);
-router.delete("/items/:id", itemControllers.destroy);
+router.get("/campuses", campusControllers.get);
+router.get("/campuses/:id", campusControllers.getOne);
+router.post("/campuses", campusControllers.add);
 
 module.exports = router;
