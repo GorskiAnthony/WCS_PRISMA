@@ -107,9 +107,10 @@ model Language {
 }
 ```
 
-> **Note**
+> **Warning**
 >
 > Version 2 (plus longue)
+> J'ai eu pas mal d'erreur avec cette version, je préfère donc la version 1.
 
 ```prisma
 model User {
