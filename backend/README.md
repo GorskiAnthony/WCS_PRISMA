@@ -298,3 +298,57 @@ router.get("/languages", languageControllers.get);
 router.get("/languages/:id", languageControllers.getOne);
 router.post("/languages", languageControllers.add);
 ```
+
+### Création d'un user
+
+Pour le user, nous allons avoir un peu plus de travail.
+Mais nous allons quand même partir des fichiers précédents.
+
+La différence, se fera au niveau de les méthodes `getOne` & `add`.
+
+```js
+// ./controllers/userControllers.js
+
+const getOne = async (req, res) => {
+  try {
+    const getUnique = await prisma.user.findUnique({
+      where: {
+        id: parseInt(req.params.id, 10),
+      },
+      select: {
+        name: true,
+        // Ici, nous allons chercher le campus de l'utilisateur
+        // Ainsi que les languages qu'il parle
+        campus: { include: { languages: true } },
+      },
+    });
+    return res.status(200).json(getUnique);
+  } catch (error) {
+    res.status(500).json(error.message);
+  } finally {
+    await prisma.$disconnect();
+  }
+};
+
+const add = async (req, res) => {
+  try {
+    const create = await prisma.user.create({
+      data: {
+        name: req.body.name,
+        email: req.body.email,
+        password: req.body.password,
+        // Ici, nous allons créer un user avec un campus
+        // Nous allons le connecter avec la méthode connect
+        // Et nous lui passons l'id du campus que nous avons dans la requête
+        campus: { connect: { id: req.body.campus } },
+      },
+      include: { campus: true },
+    });
+    return res.status(201).json(create);
+  } catch (error) {
+    return res.status(500).send(error.message);
+  } finally {
+    await prisma.$disconnect();
+  }
+};
+```
