@@ -25,6 +25,28 @@ const getOne = async (req, res) => {
     await prisma.$disconnect();
   }
 };
+const addLanguage = async (req, res) => {
+  try {
+    const campusId = parseInt(req.params.id, 10);
+    const languageId = parseInt(req.body.languageId, 10);
+
+    const updatedCampus = await prisma.campus.update({
+      where: { id: campusId },
+      data: {
+        languages: {
+          create: [{ language: { connect: { id: languageId } } }],
+        },
+      },
+      include: { languages: true },
+    });
+
+    res.status(200).json(updatedCampus);
+  } catch (error) {
+    res.status(500).json(error.message);
+  } finally {
+    await prisma.$disconnect();
+  }
+};
 
 const add = async (req, res) => {
   try {
@@ -45,4 +67,5 @@ module.exports = {
   get,
   getOne,
   add,
+  addLanguage,
 };

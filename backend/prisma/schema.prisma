@@ -11,31 +11,31 @@ datasource db {
 }
 
 model User {
-  id Int @id @default(autoincrement())
-  email String @unique
-  name String?
+  id       Int     @id @default(autoincrement())
+  email    String  @unique
+  name     String?
   password String
-  campus Campus @relation(fields: [campusId], references: [id])
+  campus   Campus  @relation(fields: [campusId], references: [id])
   campusId Int
 }
 
 model Campus {
-  id Int @id @default(autoincrement())
-  name String
-  users User[]
+  id        Int                @id @default(autoincrement())
+  name      String
+  users     User[]
   languages CampusToLanguage[]
 }
 
 model Language {
-  id Int @id @default(autoincrement())
-  name String
+  id       Int                @id @default(autoincrement())
+  name     String
   campuses CampusToLanguage[]
 }
 
 model CampusToLanguage {
-  campus Campus @relation(fields: [campusId], references: [id])
-  campusId Int
-  language Language @relation(fields: [languageId], references: [id])
+  campus     Campus   @relation(fields: [campusId], references: [id])
+  campusId   Int
+  language   Language @relation(fields: [languageId], references: [id])
   languageId Int
 
   @@id([campusId, languageId])

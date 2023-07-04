@@ -19,7 +19,13 @@ const getOne = async (req, res) => {
       },
       select: {
         name: true,
-        campus: { include: { languages: true } },
+        campus: {
+          include: {
+            languages: {
+              select: { language: true },
+            },
+          },
+        },
       },
     });
     res.status(200).json(getUnique);

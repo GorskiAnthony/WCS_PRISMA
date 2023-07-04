@@ -352,3 +352,142 @@ const add = async (req, res) => {
   }
 };
 ```
+
+### Liaison entre les tables
+
+Nous avons vu comment créer des données dans nos tables, mais nous n'avons pas encore vu comment les lier.
+
+Nous allons voir comment lier un campus à un language.
+
+```js
+// ./controllers/campusControllers.js
+const addLanguage = async (req, res) => {
+  try {
+    const campusId = parseInt(req.params.id, 10);
+    const languageId = parseInt(req.body.languageId, 10);
+
+    const updatedCampus = await prisma.campus.update({
+      where: { id: campusId },
+      data: {
+        languages: {
+          // Ici, nous allons créer un language avec la méthode create
+          // Et nous lui passons l'id du language que nous avons dans la requête
+          create: [{ language: { connect: { id: languageId } } }],
+        },
+      },
+    });
+
+    res.status(200).json(updatedCampus);
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json(error.message);
+  } finally {
+    await prisma.$disconnect();
+  }
+};
+```
+
+Du côté du `router.js`
+
+```js
+const campusControllers = require("./controllers/campusControllers");
+
+router.put("/campuses/:id/language", campusControllers.addLanguage);
+```
+
+Mais nous devons mettre à jour `getOne` pour qu'il nous retourne les languages du campus.
+
+```js
+// ./controllers/userControllers.js
+
+const getOne = async (req, res) => {
+  try {
+    const getUnique = await prisma.user.findUnique({
+      where: {
+        id: parseInt(req.params.id, 10),
+      },
+      select: {
+        name: true,
+        campus: {
+          include: {
+            languages: {
+              select: { language: true },
+            },
+          },
+        },
+      },
+    });
+    res.status(200).json(getUnique);
+  } catch (error) {
+    res.status(500).json(error.message);
+  } finally {
+    await prisma.$disconnect();
+  }
+};
+```
+
+⚠️ Nous avons du faire tout ça, car c'est le `schema.prisma` V2 (le plus complexe) qui nous a un peu bloqué.
+
+Si on avait pris le `schema.prisma` V1, nous aurions pu faire ça :
+
+<details>
+  <summary>Version 1 du schema.prisma la plus simple</summary>
+
+```prisma
+// Définition du modèle User
+model User {
+  id       Int      @id @default(autoincrement())
+  email    String   @unique
+  name     String?
+  password String
+  campus   Campus   @relation(fields: [campusId], references: [id])
+  campusId Int
+}
+
+// Définition du modèle Campus
+model Campus {
+  id        Int         @id @default(autoincrement())
+  name      String
+  users     User[]
+  languages Language[]  @relation("CampusToLanguage")
+}
+
+// Définition du modèle Language
+model Language {
+  id        Int         @id @default(autoincrement())
+  name      String
+  campuses  Campus[]    @relation("CampusToLanguage")
+}
+```
+
+</details>
+
+```js
+const addLanguage = async (req, res) => {
+    const campusId = parseInt(req.params.id, 10);
+    const languageId = parseInt(req.body.languageId, 10);
+
+    try {
+      const updatedCampus = await prisma.campus.update({
+        where: { id: campusId },
+        data: {
+          languages: {
+            connect: {
+              id: languageId,
+            },
+          },
+        },
+        include: { languages: true }, // Inclure les informations des langages associés
+      });
+
+      res.json(updatedCampus);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        error: "Une erreur est survenue lors de l'ajout du langage au campus.",
+      });
+    } finally {
+      await prisma.$disconnect();
+    }
+  },
+```

@@ -6,6 +6,7 @@ const campusControllers = require("./controllers/campusControllers");
 
 router.get("/campuses", campusControllers.get);
 router.get("/campuses/:id", campusControllers.getOne);
+router.put("/campuses/:id/language", campusControllers.addLanguage);
 router.post("/campuses", campusControllers.add);
 
 const languageControllers = require("./controllers/languageControllers");
