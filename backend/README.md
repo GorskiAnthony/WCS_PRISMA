@@ -205,10 +205,10 @@ const get = async (req, res) => {
     // Ici, nous allons chercher tous les campus avec la méthode findMany
     const getAll = await prisma.campus.findMany();
     // Nous retournons le résultat
-    return res.status(200).json(getAll);
+    res.status(200).json(getAll);
   } catch (error) {
     // Si nous avons une erreur, nous la retournons
-    return res.status(500).send(error.message);
+    res.status(500).send(error.message);
   } finally {
     // Et nous nous déconnectons de la base de données
     await prisma.$disconnect();
@@ -218,13 +218,13 @@ const get = async (req, res) => {
 const getOne = async (req, res) => {
   try {
     // Ici, nous allons chercher un campus avec la méthode findUnique
-    const getOne = await prisma.campus.findUnique({
+    const getUnique = await prisma.campus.findUnique({
       // Nous lui passons un objet avec les paramètres de la requête
       where: {
         id: parseInt(req.params.id, 10),
       },
     });
-    return res.status(200).json(getOne);
+    res.status(200).json(getUnique);
   } catch (error) {
     res.status(500).json(error.message);
   } finally {
@@ -235,15 +235,15 @@ const getOne = async (req, res) => {
 const add = async (req, res) => {
   try {
     // Ici, nous allons créer un campus avec la méthode create
-    const add = await prisma.campus.create({
+    const create = await prisma.campus.create({
       // data: est un objet avec les données à ajouter
       data: {
         name: req.body.name,
       },
     });
-    return res.status(201).json(add);
+    res.status(201).json(create);
   } catch (error) {
-    return res.status(500).send(error.message);
+    res.status(500).send(error.message);
   } finally {
     await prisma.$disconnect();
   }
@@ -256,6 +256,45 @@ module.exports = {
 };
 ```
 
+Et le `router.js`
+
+```js
+const campusControllers = require("./controllers/campusControllers");
+
+router.get("/campuses", campusControllers.get);
+router.get("/campuses/:id", campusControllers.getOne);
+router.post("/campuses", campusControllers.add);
+```
+
 ### Création d'un language
 
-``
+Nous allons avoir le même principe que pour le campus.
+
+Je n'ai cas changer le nom de la table et le nom de la route.
+
+```diff
+méthode getAll
+
+-   const getAll = await prisma.campus.findMany();
++   const getAll = await prisma.language.findMany();
+
+méthode getOne
+
+-   const getUnique = await prisma.campus.findUnique({});
++   const getUnique = await prisma.language.findUnique({});
+
+méthode add
+
+-   const create = await prisma.campus.create({});
++   const create = await prisma.language.create({});
+```
+
+Et le `router.js`
+
+```js
+const languageControllers = require("./controllers/languageControllers");
+
+router.get("/languages", languageControllers.get);
+router.get("/languages/:id", languageControllers.getOne);
+router.post("/languages", languageControllers.add);
+```
