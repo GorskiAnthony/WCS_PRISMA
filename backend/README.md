@@ -14,7 +14,7 @@ npx prisma init
 
 ## Configuration
 
-La commande ci dessus nous créer un dossier `prisma` avec un fichier `schema.prisma`. Il nous créer aussi un fichier `.env` avec les informations de connexion à la base de données.
+La commande ci-dessus nous créer un dossier `prisma` avec un fichier `schema.prisma`. Il nous créait aussi un fichier `.env` avec les informations de connexion à la base de données.
 
 ```bash
 DATABASE_URL="postgresql://johndoe:randompassword@localhost:5432/mydb?schema=public"
@@ -44,7 +44,7 @@ datasource db {
 
 ## Générer les models
 
-Comme je vous l'ai dis, nous allons nous basé sur le mcd suivant :
+Comme je vous l'ai dit, nous allons nous baser sur le mcd suivant :
 
 ![MCD](../_docs/mcd.png)
 
@@ -74,7 +74,7 @@ model Language {
 }
 ```
 
-Maintenant que nous avons nos models, nous allons faire nos relations.
+Maintenant, que nous avons nos models, nous allons faire nos relations.
 
 > **Note**
 >
@@ -145,7 +145,7 @@ model CampusToLanguage {
 }
 ```
 
-Maintenant que nous avons nos models, nous allons générer les migrations.
+Maintenant, que nous avons nos models, nous allons générer les migrations.
 
 ```bash
 npx prisma migrate dev --name init
@@ -153,7 +153,7 @@ npx prisma migrate dev --name init
 
 Ça nous a créé un dossier `migrations` avec un dossier `20230704154109_init` (le nom du fichier est généré automatiquement) qui lui contient un fichier `migration.sql`.
 
-A ce stade, nous avons donc nos models et nos migrations. Si on regarde dans notre base de données, nous avons bien notre database de créé ainsi que nos tables.
+À ce stade, nous avons donc nos models et nos migrations. Si on regarde dans notre base de données, nous avons bien notre database de créé ainsi que nos tables.
 
 ## Installation de prisma client
 
@@ -165,7 +165,7 @@ Le client prisma va nous permettre de faire des requêtes à notre base de donn�
 
 ## Nos premières requêtes
 
-Pour ma part, j'ai l'habitude de créer dans mon dossier `service` un fichier `prisma.js` qui possèdera mon client prisma.
+Pour ma part, j'ai l'habitude de créer dans mon dossier `service` un fichier `prisma.js` qui possédera mon client prisma.
 
 ```js
 // ./services/prisma.js
@@ -177,7 +177,7 @@ const prisma = new PrismaClient();
 module.exports = prisma;
 ```
 
-Pouquoi le mettre ici ? Nous avons la possibilitée d'ajouter des options à notre client prisma. Par exemple, nous pouvons ajouter un `log` pour voir les requêtes qui sont faites à notre base de données.
+Pourquoi le mettre ici ? Nous avons la possibilité d'ajouter des options à notre client prisma. Par exemple, nous pouvons ajouter un `log` pour voir les requêtes qui sont faites à notre base de données.
 
 ```js
 // ./services/prisma.js
@@ -271,7 +271,7 @@ router.post("/campuses", campusControllers.add);
 
 Nous allons avoir le même principe que pour le campus.
 
-Je n'ai cas changer le nom de la table et le nom de la route.
+Je n'ai qu'à changer le nom de la table et le nom de la route.
 
 ```diff
 méthode getAll
@@ -396,7 +396,23 @@ const campusControllers = require("./controllers/campusControllers");
 router.put("/campuses/:id/language", campusControllers.addLanguage);
 ```
 
-Mais nous devons mettre à jour `getOne` pour qu'il nous retourne les languages du campus.
+Voilà ce que ça nous donne en base de données:
+
+![image](../_docs/databaseV2.png)
+
+![image](../_docs/databaseV2_jointure.png)
+
+![image](../_docs/jointure.png)
+
+Quand nous faisons :
+
+```js
+create: [{ language: { connect: { id: languageId } } }],
+```
+
+Nous indiquons que nous créer une connexion entre : le campus et le language.
+
+Mais pour que nous puissions le voir correctement, nous devons mettre à jour `getOne` de `userControllers` pour qu'il nous retourne les languages du campus.
 
 ```js
 // ./controllers/userControllers.js
@@ -427,7 +443,14 @@ const getOne = async (req, res) => {
 };
 ```
 
-⚠️ Nous avons du faire tout ça, car c'est le `schema.prisma` V2 (le plus complexe) qui nous a un peu bloqué.
+⚠️ Nous avons du faire tout ça, car c'est le `schema.prisma` V2 (le plus complexe) qui nous a un peu bloqués.
+
+<details>
+  <summary>Nous avons eu ce genre d'erreur avec la version 2</summary>
+
+![image](../_docs/erreurV2.png)
+
+</details>
 
 Si on avait pris le `schema.prisma` V1, nous aurions pu faire ça :
 
@@ -492,3 +515,5 @@ const addLanguage = async (req, res) => {
     }
   },
 ```
+
+En gardant le `getOne` de `userControllers` comme au début.
